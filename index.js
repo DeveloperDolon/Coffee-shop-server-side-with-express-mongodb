@@ -36,8 +36,33 @@ async function run() {
       res.send(result);
     })
 
-    app.get("/users", (req, res) => {
-      res.send("hello world");
+    app.get("/users", async (req, res) => {
+      const cursor = userCollection.find();
+
+      const result = await cursor.toArray();
+      res.send(result);
+    })
+
+    app.delete("/users/:id", async (req, res) => {
+      const id = req.params.id;
+      const query = {_id: new ObjectId(id)};
+      const result = await userCollection.deleteOne(query);
+
+      res.send(result);
+    })
+
+    app.patch("/users", async (req, res) => {
+      const data = req.body;
+      const filter = {email : data.email};
+
+      const updatedItem = {
+        $set:{
+          lastSignInTime: data.lastSignInTime
+        }
+      }
+
+      const result = await userCollection.updateOne(filter, updatedItem);
+      res.send(result);
     })
 
     app.post("/coffees", async (req, res) => {
